@@ -15,7 +15,7 @@ export default function Layout({ children }) {
   const nav = [
     { path: '/', label: 'Dashboard' },
     { path: '/documents', label: 'Documents' },
-    { path: '/chat', label: 'Chat' },
+    { path: '/chat', label: 'Playground' },
     { path: '/settings', label: 'Settings' },
   ];
 

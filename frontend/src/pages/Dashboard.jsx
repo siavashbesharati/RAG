@@ -13,7 +13,7 @@ export default function Dashboard() {
           <p>Add text content to build your knowledge base. Content is converted to vectors and stored for RAG retrieval.</p>
         </Link>
         <Link to="/chat" className={styles.card}>
-          <h2>Chat</h2>
+          <h2>Playground</h2>
           <p>Test how the AI responds using your knowledge base. Ask questions and see RAG in action.</p>
         </Link>
         <Link to="/settings" className={styles.card}>
@@ -26,7 +26,7 @@ export default function Dashboard() {
         <h3>Quick start</h3>
         <ol>
           <li>Add documents with your support content</li>
-          <li>Go to Chat and ask questions</li>
+          <li>Go to Playground and ask questions</li>
           <li>Create an API key in Settings for channel integrations</li>
         </ol>
       </div>

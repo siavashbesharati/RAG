@@ -93,8 +93,8 @@ export default function Chat() {
   return (
     <div className={styles.chat}>
       <div className={styles.sidebar}>
-        <h2>Chats</h2>
-        <button onClick={createSession} className={styles.newBtn}>New chat</button>
+        <h2>Sessions</h2>
+        <button onClick={createSession} className={styles.newBtn}>New session</button>
         {sessions.map((s) => (
           <button
             key={s.id}
@@ -106,7 +106,7 @@ export default function Chat() {
         ))}
       </div>
       <div className={styles.main}>
-        <h1>Chat</h1>
+        <h1>Playground</h1>
         <p className={styles.sub}>Ask questions. Responses use your knowledge base via RAG.</p>
 
         <div className={styles.messages}>
