@@ -22,12 +22,13 @@ export default function Register() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name: name || undefined }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
       if (!res.ok) throw new Error(data.error || 'Registration failed');
       login(data);
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || (err instanceof SyntaxError ? 'Server unavailable. Is the backend running on port 4000?' : 'Registration failed'));
     } finally {
       setLoading(false);
     }
