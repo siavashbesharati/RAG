@@ -28,13 +28,18 @@ export class ConfigService {
   private db: Database.Database;
 
   // Fixed keys: only these exist, all values null by default. Keys cannot be added or deleted.
-  public static readonly REQUIRED_KEYS = ['VOYAGE_API_KEY', 'PINECONE_API_KEY', 'PINECONE_INDEX', 'GEMINI_API_KEY'] as const;
+  public static readonly REQUIRED_KEYS = [
+    'VOYAGE_API_KEY', 'PINECONE_API_KEY', 'PINECONE_INDEX',
+    'LLM_PROVIDER', 'GEMINI_API_KEY', 'MISTRAL_API_KEY',
+  ] as const;
 
   private DEFAULT_RECORDS: ConfigRecord[] = [
     { key: 'VOYAGE_API_KEY', value: null, description: 'Voyage AI embeddings API key', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
     { key: 'PINECONE_API_KEY', value: null, description: 'Pinecone vector database API key', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
     { key: 'PINECONE_INDEX', value: null, description: 'Pinecone index name (e.g. quantivo)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
-    { key: 'GEMINI_API_KEY', value: null, description: 'Google Gemini API key (for chat responses)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
+    { key: 'LLM_PROVIDER', value: 'gemini', description: 'LLM provider: gemini or mistral', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
+    { key: 'GEMINI_API_KEY', value: null, description: 'Google Gemini API key (when LLM provider is gemini)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
+    { key: 'MISTRAL_API_KEY', value: null, description: 'Mistral AI API key (when LLM provider is mistral)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
   ];
 
   constructor() {
@@ -154,9 +159,10 @@ export class ConfigService {
    * Return all required key records. Always returns exactly the 3 required keys.
    */
   public getAll(): ConfigRecord[] {
+    const placeholders = ConfigService.REQUIRED_KEYS.map(() => '?').join(', ');
     const rows: Array<any> = this.db
       .prepare(
-        'SELECT key, value, description, type, metadata, created_at, updated_at FROM settings WHERE key IN (?, ?, ?, ?)'
+        `SELECT key, value, description, type, metadata, created_at, updated_at FROM settings WHERE key IN (${placeholders})`
       )
       .all(...ConfigService.REQUIRED_KEYS) as any;
     const byKey = new Map<string, ConfigRecord>();

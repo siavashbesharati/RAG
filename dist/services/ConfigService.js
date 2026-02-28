@@ -13,7 +13,9 @@ class ConfigService {
             { key: 'VOYAGE_API_KEY', value: null, description: 'Voyage AI embeddings API key', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
             { key: 'PINECONE_API_KEY', value: null, description: 'Pinecone vector database API key', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
             { key: 'PINECONE_INDEX', value: null, description: 'Pinecone index name (e.g. quantivo)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
-            { key: 'GEMINI_API_KEY', value: null, description: 'Google Gemini API key (for chat responses)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
+            { key: 'LLM_PROVIDER', value: 'gemini', description: 'LLM provider: gemini or mistral', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
+            { key: 'GEMINI_API_KEY', value: null, description: 'Google Gemini API key (when LLM provider is gemini)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
+            { key: 'MISTRAL_API_KEY', value: null, description: 'Mistral AI API key (when LLM provider is mistral)', type: 'string', metadata: null, createdAt: Date.now(), updatedAt: Date.now() },
         ];
         this.db = new better_sqlite3_1.default(DB_PATH);
         this.db
@@ -132,8 +134,9 @@ class ConfigService {
      * Return all required key records. Always returns exactly the 3 required keys.
      */
     getAll() {
+        const placeholders = ConfigService.REQUIRED_KEYS.map(() => '?').join(', ');
         const rows = this.db
-            .prepare('SELECT key, value, description, type, metadata, created_at, updated_at FROM settings WHERE key IN (?, ?, ?, ?)')
+            .prepare(`SELECT key, value, description, type, metadata, created_at, updated_at FROM settings WHERE key IN (${placeholders})`)
             .all(...ConfigService.REQUIRED_KEYS);
         const byKey = new Map();
         for (const r of rows) {
@@ -254,4 +257,7 @@ class ConfigService {
 }
 exports.ConfigService = ConfigService;
 // Fixed keys: only these exist, all values null by default. Keys cannot be added or deleted.
-ConfigService.REQUIRED_KEYS = ['VOYAGE_API_KEY', 'PINECONE_API_KEY', 'PINECONE_INDEX', 'GEMINI_API_KEY'];
+ConfigService.REQUIRED_KEYS = [
+    'VOYAGE_API_KEY', 'PINECONE_API_KEY', 'PINECONE_INDEX',
+    'LLM_PROVIDER', 'GEMINI_API_KEY', 'MISTRAL_API_KEY',
+];

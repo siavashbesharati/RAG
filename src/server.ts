@@ -9,30 +9,52 @@ import { VectorService } from './services/VectorService';
 import { ClientChatService } from './services/ClientChatService';
 import { AuthService } from './services/AuthService';
 import { ConfigService } from './services/ConfigService';
+import { GeminiProvider } from './services/llm/GeminiProvider';
+import { MistralProvider } from './services/llm/MistralProvider';
 
 const configService = new ConfigService();
 const EMBEDDING_DIMENSION = 1024;
 const PINECONE_ENV = 'us-west1-gcp';
 
 // Read API keys from database only (no env fallback for required keys)
-function getRuntimeConfig(): { voyageKey: string; pineconeKey: string; pineconeIndex: string; geminiKey: string } | null {
+function getRuntimeConfig(): {
+  voyageKey: string;
+  pineconeKey: string;
+  pineconeIndex: string;
+  llmProvider: 'gemini' | 'mistral';
+  llmApiKey: string;
+} | null {
   const voyage = configService.get('VOYAGE_API_KEY')?.value;
   const pinecone = configService.get('PINECONE_API_KEY')?.value;
   const index = configService.get('PINECONE_INDEX')?.value;
+  const provider = String(configService.get('LLM_PROVIDER')?.value || 'gemini').toLowerCase();
   const gemini = configService.get('GEMINI_API_KEY')?.value;
-  if (!voyage || !pinecone || !index || !gemini) return null;
+  const mistral = configService.get('MISTRAL_API_KEY')?.value;
+  const llmProvider = provider === 'mistral' ? 'mistral' : 'gemini';
+  const llmApiKey = llmProvider === 'mistral' ? mistral : gemini;
+  if (!voyage || !pinecone || !index || !llmApiKey) return null;
   return {
     voyageKey: String(voyage).trim(),
     pineconeKey: String(pinecone).trim(),
     pineconeIndex: String(index).trim(),
-    geminiKey: String(gemini).trim(),
+    llmProvider,
+    llmApiKey: String(llmApiKey).trim(),
   };
 }
 
-function createServicesFromConfig(config: { voyageKey: string; pineconeKey: string; pineconeIndex: string; geminiKey: string }) {
+function createServicesFromConfig(config: {
+  voyageKey: string;
+  pineconeKey: string;
+  pineconeIndex: string;
+  llmProvider: 'gemini' | 'mistral';
+  llmApiKey: string;
+}) {
   const vectorService = new VectorService(config.pineconeKey, PINECONE_ENV, config.pineconeIndex);
   const adminService = new AdminService(vectorService, config.voyageKey);
-  const translationService = new TranslationService(config.geminiKey);
+  const llm = config.llmProvider === 'mistral'
+    ? new MistralProvider(config.llmApiKey)
+    : new GeminiProvider(config.llmApiKey);
+  const translationService = new TranslationService(llm);
   const clientChatService = new ClientChatService(translationService, vectorService, config.voyageKey);
   return { vectorService, adminService, clientChatService };
 }
@@ -112,7 +134,7 @@ app.post('/api/ingest', authMiddleware, async (req, res) => {
   const config = getRuntimeConfig();
   if (!config) {
     return res.status(503).json({
-      error: 'API keys are not configured yet. An administrator needs to add Voyage, Pinecone, Gemini, and index settings in the Admin panel.',
+      error: 'API keys are not configured yet. An administrator needs to add Voyage, Pinecone, index, and LLM provider settings in the Admin panel.',
     });
   }
   try {
@@ -150,7 +172,7 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
   const config = getRuntimeConfig();
   if (!config) {
     return res.status(503).json({
-      error: 'The assistant is not ready yet. An administrator needs to configure Voyage, Pinecone, Gemini, and index settings in the Admin panel.',
+      error: 'The assistant is not ready yet. An administrator needs to configure Voyage, Pinecone, index, and LLM provider settings in the Admin panel.',
     });
   }
   try {

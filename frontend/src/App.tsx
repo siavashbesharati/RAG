@@ -17,6 +17,12 @@ function friendlyError(raw: string): string {
   if (lower.includes('voyage') || lower.includes('embedding')) {
     return "There was a problem with the embedding service. Please check that your Voyage API key is correct in the Admin panel.";
   }
+  if (lower.includes('gemini') || lower.includes('generativelanguage')) {
+    return "There was a problem with the AI service. Please check that your Gemini API key is correct in the Admin panel.";
+  }
+  if (lower.includes('mistral')) {
+    return "There was a problem with the AI service. Please check that your Mistral API key is correct in the Admin panel.";
+  }
   if (lower.includes('pinecone')) {
     return "There was a problem with the vector database. Please check your Pinecone API key and index name in the Admin panel.";
   }
