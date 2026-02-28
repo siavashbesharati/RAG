@@ -47,6 +47,7 @@ export default function App() {
   const [tab, setTab] = useState<'chat' | 'ingest' | 'admin'>('chat');
   const [ingestStatus, setIngestStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [ingestLoading, setIngestLoading] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'));
 
   useEffect(() => {
@@ -87,8 +88,10 @@ export default function App() {
 
   async function send() {
     if (!input) return;
-    setMessages((m) => [...m, { role: 'user', text: input }]);
+    const userMsg = input;
+    setMessages((m) => [...m, { role: 'user', text: userMsg }]);
     setInput('');
+    setChatLoading(true);
     try {
       const base = import.meta.env.VITE_API_BASE_URL || '';
       const resp = await fetch(base + '/api/chat', {
@@ -97,7 +100,7 @@ export default function App() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ sessionId, message: input }),
+        body: JSON.stringify({ sessionId, message: userMsg }),
       });
       const data = await resp.json();
       if (!resp.ok) {
@@ -107,6 +110,8 @@ export default function App() {
       }
     } catch (e: any) {
       setMessages((m) => [...m, { role: 'assistant', text: friendlyError(e.message || 'Connection error.') }]);
+    } finally {
+      setChatLoading(false);
     }
   }
 
@@ -215,22 +220,34 @@ export default function App() {
               />
             </div>
             <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 h-96 overflow-y-auto mb-4 space-y-3 shadow-lg dark:shadow-slate-900/50 transition-all duration-500">
-              {messages.length === 0 ? (
+              {messages.length === 0 && !chatLoading ? (
                 <p className="text-slate-400 dark:text-slate-500 text-center py-8 text-sm transition-colors duration-300">Start a conversation...</p>
               ) : (
-                messages.map((m, i) => (
-                  <div
-                    key={i}
-                    className={`p-3 rounded-lg shadow-md transition-all duration-300 ${
-                      m.role === 'user'
-                        ? 'bg-slate-900 dark:bg-slate-600 text-white ml-12'
-                        : 'bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 text-slate-800 dark:text-slate-200 mr-12'
-                    }`}
-                  >
-                    <span className="block text-xs font-medium opacity-80 mb-1">{m.role === 'user' ? 'You' : 'Assistant'}</span>
-                    <p className="text-sm">{m.text}</p>
-                  </div>
-                ))
+                <>
+                  {messages.map((m, i) => (
+                    <div
+                      key={i}
+                      className={`p-3 rounded-lg shadow-md transition-all duration-300 ${
+                        m.role === 'user'
+                          ? 'bg-slate-900 dark:bg-slate-600 text-white ml-12'
+                          : 'bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 text-slate-800 dark:text-slate-200 mr-12'
+                      }`}
+                    >
+                      <span className="block text-xs font-medium opacity-80 mb-1">{m.role === 'user' ? 'You' : 'Assistant'}</span>
+                      <p className="text-sm">{m.text}</p>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className="p-3 rounded-lg shadow-md bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 mr-12">
+                      <span className="block text-xs font-medium opacity-80 mb-2 text-slate-600 dark:text-slate-400">Assistant</span>
+                      <div className="flex gap-1">
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             <div className="flex gap-2">
@@ -242,7 +259,11 @@ export default function App() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && send()}
               />
-              <button className="btn-primary shrink-0 dark:bg-slate-600 dark:hover:bg-slate-500" onClick={send}>
+              <button
+                className="btn-primary shrink-0 dark:bg-slate-600 dark:hover:bg-slate-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                onClick={send}
+                disabled={chatLoading}
+              >
                 Send
               </button>
             </div>
