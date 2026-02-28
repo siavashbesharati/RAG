@@ -219,31 +219,55 @@ export default function App() {
                 onChange={(e) => setSessionId(e.target.value)}
               />
             </div>
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 h-96 overflow-y-auto mb-4 space-y-3 shadow-lg dark:shadow-slate-900/50 transition-all duration-500">
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 h-96 overflow-y-auto mb-4 space-y-4 shadow-lg dark:shadow-slate-900/50 transition-all duration-500">
               {messages.length === 0 && !chatLoading ? (
-                <p className="text-slate-400 dark:text-slate-500 text-center py-8 text-sm transition-colors duration-300">Start a conversation...</p>
+                <p className="text-slate-400 dark:text-slate-500 text-center py-8 text-sm transition-colors duration-300">Start a conversation with Maria...</p>
               ) : (
                 <>
                   {messages.map((m, i) => (
                     <div
                       key={i}
-                      className={`p-3 rounded-lg shadow-md transition-all duration-300 ${
-                        m.role === 'user'
-                          ? 'bg-slate-900 dark:bg-slate-600 text-white ml-12'
-                          : 'bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 text-slate-800 dark:text-slate-200 mr-12'
-                      }`}
+                      className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
                     >
-                      <span className="block text-xs font-medium opacity-80 mb-1">{m.role === 'user' ? 'You' : 'Assistant'}</span>
-                      <p className="text-sm">{m.text}</p>
+                      <img
+                        src={m.role === 'user' ? `https://ui-avatars.com/api/?name=${encodeURIComponent(username || 'User')}&background=64748b&color=fff&size=96` : 'https://ui-avatars.com/api/?name=Maria&background=6366f1&color=fff&size=96'}
+                        alt={m.role === 'user' ? 'You' : 'Maria'}
+                        className="w-10 h-10 rounded-full shrink-0 object-cover ring-2 ring-white dark:ring-slate-800 shadow-sm"
+                      />
+                      <div
+                        className={`flex flex-col max-w-[80%] ${m.role === 'user' ? 'items-end' : 'items-start'}`}
+                      >
+                        <span className={`text-xs font-medium mb-1 ${m.role === 'user' ? 'text-slate-600 dark:text-slate-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                          {m.role === 'user' ? (username || 'You') : 'Maria'}
+                        </span>
+                        <div
+                          className={`p-3 rounded-2xl shadow-md transition-all duration-300 ${
+                            m.role === 'user'
+                              ? 'bg-slate-900 dark:bg-slate-600 text-white rounded-tr-sm'
+                              : 'bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 text-slate-800 dark:text-slate-200 rounded-tl-sm'
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed">{m.text}</p>
+                        </div>
+                      </div>
                     </div>
                   ))}
                   {chatLoading && (
-                    <div className="p-3 rounded-lg shadow-md bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 mr-12">
-                      <span className="block text-xs font-medium opacity-80 mb-2 text-slate-600 dark:text-slate-400">Assistant</span>
-                      <div className="flex gap-1">
-                        <span className="typing-dot" />
-                        <span className="typing-dot" />
-                        <span className="typing-dot" />
+                    <div className="flex gap-3">
+                      <img
+                        src="https://ui-avatars.com/api/?name=Maria&background=6366f1&color=fff&size=96"
+                        alt="Maria"
+                        className="w-10 h-10 rounded-full shrink-0 object-cover ring-2 ring-white dark:ring-slate-800 shadow-sm"
+                      />
+                      <div className="flex flex-col items-start max-w-[80%]">
+                        <span className="text-xs font-medium mb-1 text-indigo-600 dark:text-indigo-400">Maria</span>
+                        <div className="p-3 rounded-2xl rounded-tl-sm shadow-md bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600">
+                          <div className="flex gap-1">
+                            <span className="typing-dot" />
+                            <span className="typing-dot" />
+                            <span className="typing-dot" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
