@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-slate-800 dark:text-slate-200 transition-colors duration-500;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-5 py-2.5 font-medium transition-all duration-200 cursor-pointer select-none;
+  }
+  .btn-primary {
+    @apply btn bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] rounded-lg;
+  }
+  .btn-secondary {
+    @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-[0.98] rounded-lg;
+  }
+  .input-field {
+    @apply w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-300 transition-colors;
+  }
+  .card {
+    @apply bg-white rounded-xl p-6 border border-slate-100;
+  }
+}
+
+/* Admin config panel */
+.config-panel {
+  @apply card;
+}
+.config-title {
+  @apply text-lg font-semibold text-slate-900 mb-1;
+}
+.config-subtitle {
+  @apply text-sm text-slate-500 mb-6;
+}
+.config-grid {
+  @apply space-y-5;
+}
+.config-row {
+  @apply flex flex-col gap-2;
+}
+.config-label {
+  @apply text-sm font-medium text-slate-700;
+}
+.config-input-wrap {
+  @apply flex gap-2;
+}
+.config-input {
+  @apply input-field flex-1;
+}
+.config-save-btn {
+  @apply btn-primary shrink-0;
+}
+.config-empty {
+  @apply text-slate-500 text-sm;
+}
+
+/* Friendly error/success banners */
+.error-banner {
+  @apply px-4 py-3 rounded-lg bg-red-50 text-red-700 text-sm mb-4 border border-red-100;
+}
+.success-banner {
+  @apply px-4 py-3 rounded-lg bg-emerald-50 text-emerald-700 text-sm mb-4 border border-emerald-100;
+}
+.inline-error {
+  @apply text-sm text-red-600 mt-1;
+}
+.inline-success {
+  @apply text-sm text-emerald-600 mt-1;
+}
